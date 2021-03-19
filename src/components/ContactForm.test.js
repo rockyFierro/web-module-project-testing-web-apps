@@ -19,24 +19,32 @@ test('renders the contact form header', ()=> {
 });
 
 test('renders ONE error message if user enters less then 5 characters into firstname.', async () => {
-    const {getByLabelText, getByTestId} = render(<ContactForm/>)
+    const {getByLabelText, getAllByTestId} = render(<ContactForm/>)
     const firstName = getByLabelText(/first name/i)
     userEvent.type(firstName, "rock")
-    const err = await waitFor( ()=> getByTestId("error"))
-    expect(err).toBeInTheDocument()
+    const errs = await waitFor( ()=> getAllByTestId("error"))
+    expect(errs).toHaveLength(1)
+
 });
 
 test('renders THREE error messages if user enters no values into any fields.', async () => {
-    const {getByTestId} = render(<ContactForm/>)
+    const {getByTestId, getAllByTestId} = render(<ContactForm/>)
     const submit = getByTestId("submit")
     userEvent.click(submit)
-    const errors = findAllByTestId("error")
+    const errors = await waitFor(()=> getAllByTestId("error"))
     expect(errors).toHaveLength(3)
-
 });
 
 test('renders ONE error message if user enters a valid first name and last name but no email.', async () => {
-    render(<ContactForm/>)
+    const {getByLabelText,getByTestId, getAllByTestId} = render(<ContactForm/>)
+    const firstName = getByLabelText(/first name/i)
+    const lastName = getByLabelText(/last name/i)
+    userEvent.type(lastName, "Fierro")
+    userEvent.type(firstName, "Albert")
+    const submit = getByTestId("submit")
+    userEvent.click(submit)
+    const errors = await waitFor(()=> getAllByTestId("error"))
+    expect(errors).toHaveLength(1)
 });
 
 test('renders "email must be a valid email address" if an invalid email is entered', async () => {
